@@ -1,0 +1,84 @@
+{
+    companyId : "123",
+    billNo : "123456",
+    customerDetails : {
+        customerName : "John Doe",
+        customerAddress : "123 Main St",
+        customerMobile : "1234567890",
+        customerEmail : "customer@email.com",
+        anniversary : "01/01/2021",
+        birthday : "01/01/2021",
+    }
+    billDate : "01/01/2021",
+    billtime : "12:00 PM",
+    billNumber : "123456",
+    billproducts : {
+        product1 : {
+            productName : "Product 1",
+            productQuantity : "1",
+            productPrice : "100",
+            productTotal : "100",
+            productRecommendedBy : "John Doe"
+        },
+    },
+    billServices :{
+        service1 : {
+            serviceName : "Service 1",
+            servicePrice : "100",
+            serviceTotal : "100"
+            sericeBy : "John Doe"
+        },
+    }
+    billTotal : "1000",
+    billedby : "John Doe",
+    paymentMode : "Cash/Cash+Online/Online",
+    paidByCash : "100",
+    paidByOnline : "100",
+    paymentStatus : "Paid/Unpaid/Partial",
+    billType : "Dues Cleared/Advance Booking Payment/Product Purchase/Service",
+},
+
+
+companyDetails :{
+    companyName : "ABC",
+    companyAddress : "XYZ",
+    companyCity : "PQR",
+    companyState : "MNO",
+    companyZip : "12345",
+    companyPhone : "1234567890",
+    companyEmail : "company@email.com",
+    companyWebsite : "www.company.com",
+    companyTerms : "Terms and Conditions",
+    companyPrivacy : "Privacy Policy",
+    companyRefund : "Refund Policy",
+    companyCancellation : "Cancellation Policy",
+}
+
+customerDetails : {
+    customerName : "John Doe",
+    customerAddress : "123 Main St",
+    customerMobile : "1234567890",
+    customerEmail : "customer@email.com",
+    anniversary : "01/01/2021",
+    birthday : "01/01/2021",
+}
+
+customerBills : {
+    customerId : "123",
+    billIds : ["123456", "123457", "123458"]
+}
+
+products : {
+    productId : "123",
+    productName : "Product 1",
+    productPrice : "100",
+    productQuantity : "10",
+    productCategory : "Category 1",
+}
+
+services : {
+    serviceId : "123",
+    serviceName : "Service 1",
+    servicePrice : "100",
+    serviceCategory : "Category 1",
+}
