@@ -1,82 +1,147 @@
-import { Injectable,  } from '@nestjs/common';
-
-import { 
-CreateBillDto 
-} from './dto';
-
+import { Injectable } from '@nestjs/common';
+import { GenerateBillDto } from './dto';
 import {
- Bills,
- CompanyDetails,
- CustomerDetails
-} 
-from 'libs/mongoose';
-import mongoose from 'mongoose';
-
+  Bills,
+  CustomerBills,
+  CompanyDetails,
+  CustomerDetails,
+  Services,
+  Products,
+} from 'libs/mongoose';
 
 @Injectable()
 export class BillService {
+  async generateBill(dto: GenerateBillDto) {
+    try {
+      const {
+        companyId,
+        customerDetails,
+        billProducts,
+        billServices,
+        billTotal,
+        billedBy,
+        paymentMode,
+        paidByCash,
+        paidByOnline,
+        paymentStatus,
+        billType,
+      } = dto;
 
-    async createBill(dto : CreateBillDto) {
-        try {
-            const data = new Bills(dto);
+      // Check if the company exists
+      const company = await CompanyDetails.findById(companyId);
+      if (!company) {
+        throw new Error('Company not found');
+      }
 
-            const company = await CompanyDetails.findOne(
-              new mongoose.Types.ObjectId(dto.companyId)
-            );
+      // Find or create customer
+      let customer = await CustomerDetails.findOne({
+        $or: [
+          { customerMobile: customerDetails.customerMobile },
+          { customerEmail: customerDetails.customerEmail },
+        ],
+      });
 
-            const customerDetails = await CustomerDetails.findOne(
-              new mongoose.Types.ObjectId(dto.customerId)
-            );
+      // Create a new customer if not found
+      if (!customer) {
+        customer = new CustomerDetails({
+          customerName: customerDetails.customerName,
+          customerAddress: customerDetails.customerAddress,
+          customerMobile: customerDetails.customerMobile,
+          customerEmail: customerDetails.customerEmail,
+        });
+        await customer.save();
+      }
 
-            if (!company) {
-              throw new Error('Company not found');
-            }
+      // Initialize arrays to store service and product IDs
+      const serviceIds = [];
+      const productIds = [];
+      const savedBillServices = [];
+      const savedBillProducts = [];
 
-            if (!customerDetails) {
-              throw new Error('Customer not found');
-            }
+      // Save services and store their IDs
+      if (billServices && billServices.length > 0) {
+        for (const service of billServices) {
+          const newService = new Services({ ...service, billId: null });
+          const savedService = await newService.save();
+          serviceIds.push(savedService._id);
+          savedBillServices.push(savedService);
+        }
+      }
 
-            await data.save();
+      // Save products and store their IDs
+      if (billProducts && billProducts.length > 0) {
+        for (const product of billProducts) {
+          const newProduct = new Products({ ...product, billId: null });
+          const savedProduct = await newProduct.save();
+          productIds.push(savedProduct._id);
+          savedBillProducts.push(savedProduct);
+        }
+      }
 
-            const response = {
-              companyId: data.companyId,
-              billNo: data.billNo,
-              customerId: data.customerId,
-              billTotal: data.billTotal,
-              message: data.message,
-              companyDetails: {
-                companyName: company.companyName,
-                companyAddress: company.companyAddress,
-                companyCity: company.companyCity,
-                companyState: company.companyState,
-                companyCountry: company.companyCountry,
-                companyPincode: company.companyPincode || null,
-                companyContact: company.companyContact,
-                companyEmail: company.companyEmail
-              },
-              customerDetails: {
-                customerName: customerDetails.customerName,
-                customerAddress: customerDetails.customerAddress,
-                customerCity: customerDetails.customerCity,
-                customerState: customerDetails.customerState,
-                customerCountry: customerDetails.customerCountry,
-                customerPincode: customerDetails.customerPincode || null,
-                customerContact: customerDetails.customerContact,
-                customerEmail: customerDetails.customerEmail
-              },
-          }
+      // Create a new invoice
+      const newInvoice = new Bills({
+        companyId,
+        customerId: customer._id,
+        services: serviceIds,
+        products: productIds,
+        billServices: savedBillServices,
+        billProducts: savedBillProducts,
+        totalAmount: billTotal,
+        billedBy,
+        paymentMode,
+        paidByCash,
+        paidByOnline,
+        paymentStatus,
+        billType,
+      });
 
-            return {
-                message: 'Bill created successfully',
-                data: response,
-            };
-          } catch (err) {
-            console.error('error in creating bill:', err);
-            throw err;
-          }
+      await newInvoice.save();
+
+      // Update each service with the invoice ID
+      for (const service of savedBillServices) {
+        service.billId = newInvoice._id;
+        await service.save();
+      }
+
+      // Update each product with the invoice ID
+      for (const product of savedBillProducts) {
+        product.billId = newInvoice._id;
+        await product.save();
+      }
+
+      // Find or create an entry in CustomerBills
+      let customerBill = await CustomerBills.findOne({
+        customerId: customer._id,
+      });
+
+      if (!customerBill) {
+        customerBill = new CustomerBills({
+          customerName: customer.customerName,
+          customerId: customer._id,
+          billIds: [newInvoice._id],
+        });
+      } else {
+        customerBill.billIds.push(newInvoice._id);
+        customerBill.updatedAt = Date.now();
+      }
+
+      await customerBill.save();
+
+      // Re-fetch the updated bill services and products to include in the response
+      const updatedBillServices = await Services.find({ _id: { $in: serviceIds } });
+      const updatedBillProducts = await Products.find({ _id: { $in: productIds } });
+
+      return {
+        message: 'Bill created successfully',
+        data: {
+          ...newInvoice.toObject(),
+          billServices: updatedBillServices,
+          billProducts: updatedBillProducts,
+        },
+      };
+    } catch (err) {
+      console.error('Error in creating bill:', err);
+      throw err;
     }
+  }
 }
-  
-
-
-

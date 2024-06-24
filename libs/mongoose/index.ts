@@ -1,197 +1,279 @@
-// imports
 const mongoose = require('mongoose');
 import * as dotenv from 'dotenv';
 
+
+
 dotenv.config();
-mongoose.connect(process.env.DATABASE_URL)
-  
+mongoose.connect(process.env.DATABASE_URL);
 
 // Schemas
 const billSchema = new mongoose.Schema({
-  companyId: { 
-    type: String 
+  companyId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'CompanyDetails',
+    required: true,
   },
-  // billNo: { 
-  //   type: String 
-  // },
-  customerId: { 
-    type: String 
+  billNo: {
+    type: String,
   },
-  billTotal: { 
-    type: Number 
+  customerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'CustomerDetails',
+    required: true,
+  },
+  services: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'ServiceDetails',
+    },
+  ],
+  products: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'ProductDetails',
+    },
+  ],
+  totalAmount: {
+    type: Number,
+    required: true,
+  },
+  invoiceDate: {
+    type: Date,
+    default: Date.now,
+  },
+  billProducts: [
+    {
+      type: Object,
+    }
+  ],
+  billServices: [
+    {
+      type: Object,
+    }
+  ],
+  billTotal: {
+    type: Number,
+  },
+  billedBy: {
+    type: String,
+    required: true,
+  },
+  paymentMode: {
+    type: String,
+    required: true,
+  },
+  paidByCash: {
+    type: String,
+  },
+  paidByOnline: {
+    type: String,
+  },
+  paymentStatus: {
+    type: String,
+    required: true,
+  },
+  billType: {
+    type: String,
+    required: true,
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   updatedAt: {
-      type: Date,
-      default: Date.now
-  }
+    type: Date,
+    default: Date.now,
+  },
 });
-const serviceSchema = new mongoose.Schema();
-const productSchema = new mongoose.Schema();
+
+
+const serviceSchema = new mongoose.Schema({
+  serviceName: {
+    type: String,
+    required: true,
+  },
+  servicePrice: {
+    type: Number,
+    required: true,
+  },
+  serviceTotal: {
+    type: Number,
+    required: true,
+  },
+  billId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Bills',
+  },
+  serviceBy: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+const productSchema = new mongoose.Schema({
+  productName: {
+    type: String,
+    required: true,
+  },
+  productPrice: {
+    type: Number,
+    required: true,
+  },
+  productQuantity: {
+    type: Number,
+    required: true,
+  },
+  productTotal: {
+    type: Number,
+    required: true,
+  },
+  billId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Bills',
+  },
+  productRecommendedBy: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
 const customerSchema = new mongoose.Schema({
-  customerName: { 
+  customerName: {
     type: String,
     required: true,
   },
-  customerMobile: { 
+  customerMobile: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
-  customerEmail: { 
+  customerEmail: {
     type: String,
-    required: true,
-    unique: true
+    unique: true,
   },
-  customerAddress: { 
-    type: String 
+  customerAddress: {
+    type: String,
   },
   customerBirthdate: {
-    type: Date
+    type: Date,
   },
   customerAnniversary: {
-    type: Date
+    type: Date,
   },
-  customerCity: { 
-    type: String
+  customerCity: {
+    type: String,
   },
-  customerState: { 
-    type: String 
+  customerState: {
+    type: String,
   },
-  customerCountry: { 
-    type: String 
+  customerCountry: {
+    type: String,
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   updatedAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
+
 const customerBillSchema = new mongoose.Schema({
-  billNo: { 
-    type: String 
+  customerName: {
+    type: String,
+    required: true,
   },
-  customerId: { 
-    type: String 
+  customerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'CustomerDetails',
+    required: true,
   },
-  billProducts: { 
-    type: Object 
-  },
-  billServices: { 
-    type: Object 
-  },
-  billTotal: { 
-    type: Number 
-  },
-  billedBy: { 
-    type: String 
-  },
-  paymentMode: { 
-    type: String 
-  },
-  paidByCash: { 
-    type: String 
-  },
-  paidByOnline: { 
-    type: String 
-  },
-  paymentStatus: { 
-    type: String 
-  },
+  billIds: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Bills',
+    }
+  ],
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   updatedAt: {
-      type: Date,
-      default: Date.now
-  }
+    type: Date,
+    default: Date.now,
+  },
 });
-const userSchema = new mongoose.Schema();
+
 const companySchema = new mongoose.Schema({
   companyName: {
     type: String,
-    required: true
+    required: true,
   },
-  companyAddress: { 
-    type: String , 
-    required: true
+  companyAddress: {
+    type: String,
+    required: true,
   },
-  companyCity: { 
-    type: String , 
-    required: true
-  },  
-  companyPincode: { 
-    type: String , 
-    required: true
+  companyCity: {
+    type: String,
+    required: true,
   },
-  companyState: { 
-    type: String  , 
-    required: true
+  companyPincode: {
+    type: String,
+    required: true,
   },
-  companyCountry: { 
-    type: String 
+  companyState: {
+    type: String,
+    required: true,
   },
-  companyContact: { 
-    type: String , 
-    required: true , 
-    unique: true
+  companyCountry: {
+    type: String,
   },
-  companyEmail: { 
-    type: String , 
-    required: true , 
-    unique: true
+  companyContact: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  companyEmail: {
+    type: String,
+    required: true,
+    unique: true,
   },
   createdAt: {
-      type: Date,
-      default: Date.now
+    type: Date,
+    default: Date.now,
   },
   updatedAt: {
-      type: Date,
-      default: Date.now
-  }
+    type: Date,
+    default: Date.now,
+  },
 });
 
-
 // Models
-export const Bills = mongoose.model(
-  'Bills',
-   billSchema,
-  'bills'
-);
-export const Services = mongoose.model(
-  'Services',
-  serviceSchema,
-  'services',
-);
-export const Products = mongoose.model(
-  'Products',
-   productSchema,
-  'products',
-);
-export const CustomerDetails = mongoose.model(
-  'CustomerDetails',
-   customerSchema,
-  'customerDetails',
-);
-export const CustomerBill = mongoose.model(
-  'CustomerBill',
-  customerBillSchema,
-  'customerBill',
-);
-export const User = mongoose.model(
-  'User',
-  userSchema,
-  'user',
-);
-export const CompanyDetails = mongoose.model(
-  'companyDetails',
-  companySchema,
-  'companyDetails',
-);
+export const Bills = mongoose.model('Bills', billSchema, 'bills');
+
+export const Services = mongoose.model('Services', serviceSchema, 'services');
+
+export const Products = mongoose.model('Products', productSchema, 'products');
+
+export const CustomerDetails = mongoose.model('CustomerDetails', customerSchema, 'customerDetails');
+
+export const CustomerBills = mongoose.model('CustomerBills', customerBillSchema, 'customerBills');
+
+export const CompanyDetails = mongoose.model('CompanyDetails', companySchema, 'companyDetails');

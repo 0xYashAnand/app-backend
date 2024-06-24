@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Patch, Param, Body } from '@nestjs/common';
-import { CreateBillDto } from './dto';
+import { GenerateBillDto } from './dto';
 
 import { BillService } from './bill.service';
 
@@ -7,11 +7,11 @@ import { BillService } from './bill.service';
 export class BillController {
     constructor(private billService: BillService) {}
 
-    @Post('createbill')
-    createBill(
-        @Body() dto: CreateBillDto
+    @Post('generatebill')
+    generateBill(
+        @Body() dto: GenerateBillDto
     ){
-        return this.billService.createBill(dto);
+        return this.billService.generateBill(dto);
     }
 
     @Get('todaybills')
