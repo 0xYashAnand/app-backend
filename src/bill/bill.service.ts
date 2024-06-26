@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { GenerateBillDto } from './dto';
 import {
   Bills,
@@ -142,6 +142,57 @@ export class BillService {
     } catch (err) {
       console.error('Error in creating bill:', err);
       throw err;
+    }
+  }
+
+  async getTodayBills() {
+    try {
+      const currentDate = new Date();
+
+      const startOfDay = new Date(Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate(), 0, 0, 0, 0));
+
+      const endOfDay = new Date(Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate(), 23, 59, 59, 999));
+
+      console.log('Fetching bills between:', startOfDay.toISOString(), 'and', endOfDay.toISOString());
+
+      const todayBills = await Bills.find({
+        createdAt: {
+           $gte: startOfDay,
+           $lte: endOfDay,
+         },
+       }).lean();
+
+      console.log('Fetched bills:', todayBills);
+
+      return {
+        message: 'Bills generated today retrieved successfully',
+        data: todayBills,
+      };
+    } catch (err) {
+      console.error('Error in retrieving today bills:', err);
+      throw err;
+    }
+  }
+
+  async getBillById(billId: string) {
+    try {
+      const billData = await Bills.findById(billId).lean();
+      
+      if (!billData) {
+        throw new NotFoundException('Bill not found'); // Throw a NotFoundException if billId is not found
+      }
+      
+      return {
+        message: 'Bill Data Fetched',
+        data: billData,
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error.getResponse();
+      }
+      throw new BadRequestException(
+        'Unable to fetch Bills with that ID.',
+      );
     }
   }
 }

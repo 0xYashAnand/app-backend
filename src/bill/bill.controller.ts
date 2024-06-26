@@ -16,14 +16,14 @@ export class BillController {
 
     @Get('todaybills')
     getTodayBills() {
-        return 'Today bills';
+        return this.billService.getTodayBills();
     }
 
     @Get(':id')
     getBillById(
-        @Param('id') id: string
+        @Param('id') billId: string
     ) {
-        return 'Bill by id ' + id;
+        return this.billService.getBillById(billId);
     }
 
     // Create a new bill and hide the old bill

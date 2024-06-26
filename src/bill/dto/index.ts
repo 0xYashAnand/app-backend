@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsNumber, IsOptional, IsObject, IsEmail, ValidateNested, ArrayNotEmpty, IsArray, ValidateIf } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, IsOptional, IsEmail, ValidateNested, ArrayNotEmpty, IsArray, ValidateIf } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class CustomerDetailsDto {

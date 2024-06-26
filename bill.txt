@@ -82,3 +82,19 @@ services : {
     servicePrice : "100",
     serviceCategory : "Category 1",
 }
+
+is provided by a member of a company and in a serivce table with service name
+
+I am making a bill-app which generate a bill for registered user as a company, so when a user register as a company he had to fill all the company details in it 
+for one time then user can create a bill/invoice so user had to enter customer details like  customerName customerAddress customerMobile customerEmail for the bill 
+so the logic is here if the customer details is already present in db like we can search it through phone number in frontend and assign a customerId in a body where
+we will be sending the request if it exist otherwise we will create a new customer in our 'CustomerDetails' mongoose shema present in mongodb so after entering 
+user had to enter the services the custmer has taken like serviceName, servicePrice, serviceBy (which staff has done that work), now what will happen that
+in frontend form after entering all these details bill total will be created so the services should be a single or may be multiple.
+
+i am using nest-js in backend and mongodb as a database and mongoose as a query language so help me with my app:
+
+so when a user enters all the details in form and presses generate-invoice btn then in backend what happens is that it will create customer if it is not present 
+(i.e mobile or email as a unique key to search for customer details in frontend) and generate customerId then we already have comapnyId as user is signed in as a company
+then we have services provided what i want is that each service taken by client will be linked to that particular bill id like {serviceName, servicePrice, billId}
+for each service a unique entry will be done in db (services) then the rest of thing will be done
