@@ -104,9 +104,17 @@ const serviceSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Bills',
   },
-  serviceBy: {
+  serviceAmountPaid: {
+    type: Number,
+    default : 0,
+  },
+  serviceByStaff: {
     type: String,
     required: true,
+  },
+  sericeStaffId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'StaffDetails',
   },
   createdAt: {
     type: Date,
@@ -139,9 +147,17 @@ const productSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Bills',
   },
-  productRecommendedBy: {
+  productAmountPaid: {
+    type: Number,
+    default : 0,
+  },
+  productByStaff: {
     type: String,
     required: true,
+  },
+  productStaffId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'StaffDetails',
   },
   createdAt: {
     type: Date,
@@ -211,6 +227,11 @@ const customerBillSchema = new mongoose.Schema({
       ref: 'Bills',
     }
   ],
+  companyId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'CompanyDetails',
+    required: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -265,6 +286,168 @@ const companySchema = new mongoose.Schema({
   },
 });
 
+// userSchema
+const userSchema = new mongoose.Schema({
+  userName: {
+    type: String,
+    required: true,
+  },
+  userEmail: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  userPassword: {
+    type: String,
+    required: true,
+  },
+  userMobile: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  // staff or admin or superadmin
+  userRole: {
+    type: String,
+    required: true,
+    default: 'staff',
+  },
+  userStatus: {
+    type: String,
+    required: true,
+  },
+  userCreatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+  userUpdatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+// staffSchema
+const staffSchema = new mongoose.Schema({
+  userId : {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'UserDetails',
+    required: true,
+  },
+  staffName: {
+    type: String,
+    required: true,
+  },
+  bankDetailId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'BankDetails',
+    required: true,
+  },
+  staffStatus: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+  deletedAt: {
+    type: Date,
+  },
+
+})
+
+// staffBillServicesSchema
+const staffBillServicesSchema = new mongoose.Schema({
+  staffId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'StaffDetails',
+    required: true,
+  },
+  serviceId: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Services',
+      required: true,
+    }
+  ],
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+})
+
+//staffBillProductsSchema
+const staffBillProductsSchema = new mongoose.Schema({
+  staffId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'StaffDetails',
+    required: true,
+  },
+  productId: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Products',
+      required: true,
+    }
+  ],
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+})
+
+//bankSchema
+const bankSchema = new mongoose.Schema({
+  bankName: {
+    type: String,
+    required: true,
+  },
+  bankBranch: {
+    type: String,
+    required: true,
+  },
+  bankIFSC: {
+    type: String,
+    required: true,
+  },
+  bankAccount: {
+    type: Number,
+    required: true,
+  },
+  bankAccountHolderName: {
+    type: String,
+    required: true,
+  },
+  bankAccountType: {
+    type: String,
+    required: true,
+  },
+  bankStatus: {
+    type: String,
+    required: true,
+  },
+  bankCreatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+  bankUpdatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+})
+
 // Models
 export const Bills = mongoose.model('Bills', billSchema, 'bills');
 
@@ -277,3 +460,13 @@ export const CustomerDetails = mongoose.model('CustomerDetails', customerSchema,
 export const CustomerBills = mongoose.model('CustomerBills', customerBillSchema, 'customerBills');
 
 export const CompanyDetails = mongoose.model('CompanyDetails', companySchema, 'companyDetails');
+
+export const UserDetails = mongoose.model('UserDetails', userSchema, 'userDetails');
+
+export const StaffDetails = mongoose.model('StaffDetails', staffSchema, 'staffDetails');
+
+export const BankDetails = mongoose.model('BankDetails', bankSchema, 'bankDetails');
+
+export const StaffBillServices = mongoose.model('StaffBillServices', staffBillServicesSchema, 'staffBillServices');
+
+export const StaffBillProducts = mongoose.model('StaffBillProducts', staffBillProductsSchema, 'staffBillProducts');
