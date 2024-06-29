@@ -6,6 +6,7 @@ import { BillModule } from './bill/bill.module';
 import { CompanyModule } from './company/company.module';
 import { ProductsModule } from './products/products.module';
 import { ServicesModule } from './services/services.module';
+import { StaffModule } from './staff/staff.module';
 
 
 @Module({
@@ -14,6 +15,7 @@ import { ServicesModule } from './services/services.module';
      CompanyModule,
      ProductsModule,
      ServicesModule,
+     StaffModule,
     ],
     controllers: [],
     providers: [],
