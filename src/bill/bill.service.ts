@@ -1,4 +1,9 @@
-import { BadRequestException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { GenerateBillDto } from './dto';
 import {
   Bills,
@@ -30,7 +35,7 @@ export class BillService {
       // Check if the company exists
       const company = await CompanyDetails.findById(companyId);
       if (!company) {
-        throw new Error('Company not found');
+        throw new BadRequestException('Company not found');
       }
 
       // Find or create customer
@@ -112,12 +117,14 @@ export class BillService {
       // Find or create an entry in CustomerBills
       let customerBill = await CustomerBills.findOne({
         customerId: customer._id,
+        companyId: companyId, // Ensure companyId is included in the search
       });
 
       if (!customerBill) {
         customerBill = new CustomerBills({
           customerName: customer.customerName,
           customerId: customer._id,
+          companyId: companyId,
           billIds: [newInvoice._id],
         });
       } else {
@@ -128,8 +135,12 @@ export class BillService {
       await customerBill.save();
 
       // Re-fetch the updated bill services and products to include in the response
-      const updatedBillServices = await Services.find({ _id: { $in: serviceIds } });
-      const updatedBillProducts = await Products.find({ _id: { $in: productIds } });
+      const updatedBillServices = await Services.find({
+        _id: { $in: serviceIds },
+      });
+      const updatedBillProducts = await Products.find({
+        _id: { $in: productIds },
+      });
 
       return {
         message: 'Bill created successfully',
@@ -139,9 +150,11 @@ export class BillService {
           billProducts: updatedBillProducts,
         },
       };
-    } catch (err) {
-      console.error('Error in creating bill:', err);
-      throw err;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error.getResponse();
+      }
+      throw new BadRequestException('Error in creating bill');
     }
   }
 
@@ -149,39 +162,69 @@ export class BillService {
     try {
       const currentDate = new Date();
 
-      const startOfDay = new Date(Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate(), 0, 0, 0, 0));
+      const startOfDay = new Date(
+        Date.UTC(
+          currentDate.getUTCFullYear(),
+          currentDate.getUTCMonth(),
+          currentDate.getUTCDate(),
+          0,
+          0,
+          0,
+          0,
+        ),
+      );
 
-      const endOfDay = new Date(Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate(), 23, 59, 59, 999));
+      const endOfDay = new Date(
+        Date.UTC(
+          currentDate.getUTCFullYear(),
+          currentDate.getUTCMonth(),
+          currentDate.getUTCDate(),
+          23,
+          59,
+          59,
+          999,
+        ),
+      );
 
-      console.log('Fetching bills between:', startOfDay.toISOString(), 'and', endOfDay.toISOString());
+      console.log(
+        'Fetching bills between:',
+        startOfDay.toISOString(),
+        'and',
+        endOfDay.toISOString(),
+      );
 
       const todayBills = await Bills.find({
         createdAt: {
-           $gte: startOfDay,
-           $lte: endOfDay,
-         },
-       }).lean();
+          $gte: startOfDay,
+          $lte: endOfDay,
+        },
+      }).lean();
 
       console.log('Fetched bills:', todayBills);
 
+      const message =
+        todayBills.length > 0 ? 'Bills Fetched' : 'No bills found for today';
+
       return {
-        message: 'Bills generated today retrieved successfully',
+        message,
         data: todayBills,
       };
-    } catch (err) {
-      console.error('Error in retrieving today bills:', err);
-      throw err;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error.getResponse();
+      }
+      throw new BadRequestException('Unable to fetch today bills');
     }
   }
 
   async getBillById(billId: string) {
     try {
       const billData = await Bills.findById(billId).lean();
-      
+
       if (!billData) {
         throw new NotFoundException('Bill not found'); // Throw a NotFoundException if billId is not found
       }
-      
+
       return {
         message: 'Bill Data Fetched',
         data: billData,
@@ -190,9 +233,7 @@ export class BillService {
       if (error instanceof HttpException) {
         throw error.getResponse();
       }
-      throw new BadRequestException(
-        'Unable to fetch Bills with that ID.',
-      );
+      throw new BadRequestException('Unable to fetch Bills with that ID.');
     }
   }
 }

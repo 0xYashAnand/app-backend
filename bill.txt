@@ -98,3 +98,11 @@ so when a user enters all the details in form and presses generate-invoice btn t
 (i.e mobile or email as a unique key to search for customer details in frontend) and generate customerId then we already have comapnyId as user is signed in as a company
 then we have services provided what i want is that each service taken by client will be linked to that particular bill id like {serviceName, servicePrice, billId}
 for each service a unique entry will be done in db (services) then the rest of thing will be done
+
+
+billType: dropdown with values: 'Advance Booking', 'Due Payment' , 'Full Payment' , 'Partial Payment'
+paymentStatus: dropdown with values: 'Paid', 'Unpaid'
+billedBy: dropdown as same as 'recommended by' or 'Service By' They both will fetch the same api for dropdown data from backend 
+
+Issue
+-> In customerBills 1 customer can have many companies so customerBills should have a companyId for which companies he had those bills
