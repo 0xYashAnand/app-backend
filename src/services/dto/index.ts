@@ -1,15 +1,29 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
-export class CreateServiceDto{
-    @IsNotEmpty()
-    @IsString()
-    serviceName: string;
 
-    @IsNotEmpty()
-    @IsString()
-    servicePrice: string;
+export class CreateBilledServiceDto {
+  @IsString()
+  serviceName: string;
 
-    @IsNotEmpty()
-    @IsString()
-    billId: string;
+  @IsNumber()
+  servicePrice: number;
+
+  @IsNumber()
+  serviceTotal: number;
+
+  @IsNumber()
+  @IsOptional()
+  serviceAmountPaid: number;
+
+  @IsString()
+  @IsNotEmpty()
+  billId: string;
+
+  @IsString()
+  @IsOptional()
+  serviceByStaff: string;
+
+  @IsString()
+  @IsOptional()
+  serviceStaffId: string;
 }

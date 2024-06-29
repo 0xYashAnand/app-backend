@@ -29,10 +29,7 @@ export class CompanyService {
       if (!data) {
         throw new BadRequestException('Company not found');
       }
-      return {
-        message: 'Company details fetched successfully',
-        data: data,
-      };
+      return data;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error.getResponse();
